@@ -1,0 +1,52 @@
+{
+  "name": "donggeul",
+  "version": "0.1.0",
+  "description": "동글 변환기 - 파일 둘레에서 형식을 골라 바로 변환",
+  "main": "main.js",
+  "author": "jini",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.jini.donggeul",
+    "productName": "Donggeul",
+    "artifactName": "Donggeul-Setup-${version}.${ext}",
+    "files": [
+      "main.js",
+      "preload.js",
+      "ring.html",
+      "core.js",
+      "assets/**",
+      "vendor/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "helper",
+        "to": "helper"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "동글 변환기",
+      "runAfterFinish": true
+    }
+  }
+}
