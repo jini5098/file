@@ -1,0 +1,51 @@
+name: 윈도우 설치 파일 만들기
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 부품 설치
+        run: npm install
+
+      - name: AutoHotkey 받기 (Alt+우클릭 도우미)
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo AutoHotkey/AutoHotkey --pattern "AutoHotkey_*.zip" --dir ahk
+          $zip = Get-ChildItem ahk -Filter *.zip | Select-Object -First 1
+          Expand-Archive $zip.FullName -DestinationPath ahk\x
+          $exe = Get-ChildItem ahk\x -Recurse -Filter AutoHotkey64.exe | Select-Object -First 1
+          Copy-Item $exe.FullName helper\AutoHotkey64.exe
+          Get-ChildItem helper
+
+      - name: 설치 파일 만들기
+        run: npx electron-builder --win nsis --x64 --publish never
+
+      - name: 결과 올리기
+        uses: actions/upload-artifact@v4
+        with:
+          name: donggeul-windows
+          path: dist/*.exe
+
+      - name: 릴리스 만들기
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.${{ github.run_number }}
+          name: 동글 변환기 v0.1.${{ github.run_number }}
+          files: dist/*.exe
